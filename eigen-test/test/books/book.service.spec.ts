@@ -8,7 +8,6 @@ import { IBorrowedBookRepository } from 'src/borrowed-books/domain/borrowed-book
 
 describe('BookService', () => {
   let service: BookService;
-  let mockRepository: jest.Mocked<IBookRepository>;
   let mockBookRepository: jest.Mocked<IBookRepository>;
   let mockBorrowedBookRepository: jest.Mocked<IBorrowedBookRepository>;
 
@@ -24,14 +23,6 @@ describe('BookService', () => {
     mockBorrowedBookRepository = {
       findAll: jest.fn(),
     } as any;
-
-    mockRepository = {
-      findAll: jest.fn(),
-      findById: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
-      delete: jest.fn(),
-    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -52,9 +43,9 @@ describe('BookService', () => {
     it('seharusnya mengembalikan array buku', async () => {
       const mockBook = new Book();
       mockBook.id = '1';
-      mockBook.code = 'B001';
-      mockBook.title = 'Sample Book';
-      mockBook.author = 'John Doe';
+      mockBook.code = 'JK-45';
+      mockBook.title = 'Harry Potter';
+      mockBook.author = 'J.K Rowling';
       mockBook.stock = 10;
       const result: Book[] = [mockBook];
       mockBookRepository.findAll.mockResolvedValue(result);
@@ -66,34 +57,35 @@ describe('BookService', () => {
     it('seharusnya mengembalikan buku jika ditemukan', async () => {
       const mockBook = new Book();
       mockBook.id = '1';
-      mockBook.code = 'B001';
-      mockBook.title = 'Sample Book';
-      mockBook.author = 'John Doe';
+      mockBook.code = 'JK-45';
+      mockBook.title = 'Harry Potter';
+      mockBook.author = 'J.K Rowling';
       mockBook.stock = 10;
       mockBookRepository.findById.mockResolvedValue(mockBook);
       expect(await service.getBookById('1')).toEqual(mockBook);
     });
   
     it('seharusnya melempar NotFoundException jika buku tidak ditemukan', async () => {
-      mockBookRepository.findById.mockResolvedValue(null);
+      mockBookRepository.findById.mockRejectedValue(new NotFoundException('Buku dengan ID "1" tidak ditemukan'));
       await expect(service.getBookById('1')).rejects.toThrow(NotFoundException);
     });
   });
+
 
   describe('getBookById', () => {
     it('seharusnya mengembalikan buku jika ditemukan', async () => {
       const mockBook = new Book();
       mockBook.id = '1';
-      mockBook.code = 'B001';
-      mockBook.title = 'Sample Book';
-      mockBook.author = 'John Doe';
+      mockBook.code = 'JK-45';
+      mockBook.title = 'Harry Potter';
+      mockBook.author = 'J.K Rowling';
       mockBook.stock = 10;
-      mockRepository.findById.mockResolvedValue(mockBook);
+      mockBookRepository.findById.mockResolvedValue(mockBook);
       expect(await service.getBookById('1')).toBe(mockBook);
     });
 
     it('seharusnya melempar NotFoundException jika buku tidak ditemukan', async () => {
-      mockRepository.findById.mockRejectedValue(new NotFoundException());
+      mockBookRepository.findById.mockRejectedValue(new NotFoundException());
       await expect(service.getBookById('1')).rejects.toThrow(NotFoundException);
     });
   });
@@ -101,13 +93,11 @@ describe('BookService', () => {
   describe('checkBooks', () => {
     it('seharusnya mengembalikan daftar buku dengan jumlah total dan yang tersedia', async () => {
       const mockBooks = [
-        { id: '1', title: 'Book 1', stock: 5 },
-        { id: '2', title: 'Book 2', stock: 3 },
+        { id: '1', code: "JK-45", title: "Harry Potter", author: "J.K Rowling", stock: 1 },
+        { id: '2', code: "SHR-1", title: "A Study in Scarlet", author: "Arthur Conan Doyle", stock: 1 },
       ];
       const mockBorrowedBooks = [
         { bookId: '1', returnDate: null },
-        { bookId: '1', returnDate: null },
-        { bookId: '2', returnDate: null },
       ];
   
       mockBookRepository.findAll.mockResolvedValue(mockBooks as Book[]);
@@ -116,14 +106,14 @@ describe('BookService', () => {
       const result = await service.checkBooks();
   
       expect(result).toEqual([
-        { id: '1', title: 'Book 1', totalQuantity: 5, availableQuantity: 3 },
-        { id: '2', title: 'Book 2', totalQuantity: 3, availableQuantity: 2 },
+        { id: '1', title: "Harry Potter", totalQuantity: 1, availableQuantity: 0 },
+        { id: '2', title: "A Study in Scarlet", totalQuantity: 1, availableQuantity: 1 },
       ]);
     });
   
     it('seharusnya mengembalikan jumlah yang tersedia sama dengan total jika tidak ada buku yang dipinjam', async () => {
       const mockBooks = [
-        { id: '1', title: 'Book 1', stock: 5 },
+        { id: '3', code: "TW-11", title: "Twilight", author: "Stephenie Meyer", stock: 1 },
       ];
       const mockBorrowedBooks: BorrowedBook[] = [];
   
@@ -133,17 +123,17 @@ describe('BookService', () => {
       const result = await service.checkBooks();
   
       expect(result).toEqual([
-        { id: '1', title: 'Book 1', totalQuantity: 5, availableQuantity: 5 },
+        { id: '3', title: "Twilight", totalQuantity: 1, availableQuantity: 1 },
       ]);
     });
   
     it('seharusnya tidak menghitung buku yang sudah dikembalikan', async () => {
       const mockBooks = [
-        { id: '1', title: 'Book 1', stock: 5 },
+        { id: '4', code: "HOB-83", title: "The Hobbit, or There and Back Again", author: "J.R.R. Tolkien", stock: 1 },
       ];
       const mockBorrowedBooks = [
-        { bookId: '1', returnDate: null },
-        { bookId: '1', returnDate: new Date() }, // This book has been returned
+        { bookId: '4', returnDate: null },
+        { bookId: '4', returnDate: new Date() },
       ];
   
       mockBookRepository.findAll.mockResolvedValue(mockBooks as Book[]);
@@ -152,7 +142,7 @@ describe('BookService', () => {
       const result = await service.checkBooks();
   
       expect(result).toEqual([
-        { id: '1', title: 'Book 1', totalQuantity: 5, availableQuantity: 4 },
+        { id: '4', title: "The Hobbit, or There and Back Again", totalQuantity: 1, availableQuantity: 0 },
       ]);
     });
   });

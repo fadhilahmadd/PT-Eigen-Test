@@ -53,7 +53,7 @@ export class MemberService {
             await this.memberRepository.delete(id);
         } catch (error) {
             if (error instanceof NotFoundException) {
-                throw new NotFoundException(`Member with ID "${id}" tidak ditemukan`);
+                throw new NotFoundException(`Member dengan ID "${id}" tidak ditemukan`);
             }
             throw error;
         }
@@ -114,12 +114,28 @@ export class MemberService {
         const borrowedBooks = await this.borrowedBookRepository.findAll();
 
         return members.map(member => {
-            const borrowedCount = borrowedBooks.filter(bb => bb.memberId === member.id && !bb.returnDate).length;
+            const memberBorrowedBooks = borrowedBooks.filter(bb => bb.memberId === member.id && !bb.returnDate);
             return {
                 id: member.id,
                 name: member.name,
-                borrowedBooks: borrowedCount
+                borrowedBooks: memberBorrowedBooks.length
             };
         });
+    }
+
+    async checkMemberById(id: string): Promise<{ id: string; name: string; borrowedBooks: number }> {
+        const member = await this.memberRepository.findById(id);
+        if (!member) {
+            throw new NotFoundException(`Member dengan ID "${id}" tidak ditemukan`);
+        }
+
+        const borrowedBooks = await this.borrowedBookRepository.findByMemberId(id);
+        const activeBorrowedBooks = borrowedBooks.filter(bb => !bb.returnDate);
+
+        return {
+            id: member.id,
+            name: member.name,
+            borrowedBooks: activeBorrowedBooks.length
+        };
     }
 }

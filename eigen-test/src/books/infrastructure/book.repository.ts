@@ -18,7 +18,7 @@ export class BookRepository implements IBookRepository {
     async findById(id: string): Promise<Book> {
         const book = await this.bookRepository.findOne({ where: { id } });
         if (!book) {
-            throw new NotFoundException(`Book with ID "${id}" not found`);
+            throw new NotFoundException(`Buku dengan ID "${id}" tidak ditemukan`);
         }
         return book;
     }
@@ -30,7 +30,7 @@ export class BookRepository implements IBookRepository {
     async update(id: string, bookData: Partial<Book>): Promise<Book> {
         const updateResult = await this.bookRepository.update(id, bookData);
         if (updateResult.affected === 0) {
-            throw new NotFoundException(`Book with ID "${id}" not found`);
+            throw new NotFoundException(`Buku dengan ID "${id}" tidak ditemukan`);
         }
         return this.findById(id);
     }
@@ -38,7 +38,7 @@ export class BookRepository implements IBookRepository {
     async delete(id: string): Promise<void> {
         const result = await this.bookRepository.delete(id);
         if (result.affected === 0) {
-            throw new NotFoundException(`Book with ID "${id}" not found`);
+            throw new NotFoundException(`Buku dengan ID "${id}" tidak ditemukan`);
         }
     }
 }

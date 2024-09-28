@@ -18,7 +18,7 @@ export class MemberRepository implements IMemberRepository {
     async findById(id: string): Promise<Member> {
         const member = await this.memberRepository.findOne({ where: { id } });
         if (!member) {
-            throw new NotFoundException(`Member with ID "${id}" not found`);
+            throw new NotFoundException(`Member dengan ID "${id}" tidak ditemukan`);
         }
         return member;
     }
@@ -35,7 +35,7 @@ export class MemberRepository implements IMemberRepository {
     async delete(id: string): Promise<void> {
         const result = await this.memberRepository.delete(id);
         if (result.affected === 0) {
-            throw new NotFoundException(`Member with ID "${id}" not found`);
+            throw new NotFoundException(`Member dengan ID "${id}" tidak ditemukan`);
         }
     }
 }

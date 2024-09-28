@@ -7,18 +7,18 @@ import { Book } from './domain/book.entity';
 import { BorrowedBooksModule } from '../borrowed-books/borrowed-books.module';
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([Book]),
-        BorrowedBooksModule,
-    ],
-    controllers: [BookController],
-    providers: [
-        BookService,
-        {
-            provide: 'IBookRepository',
-            useClass: BookRepository,
-        },
-    ],
-    exports: ['IBookRepository', BookService],
+  imports: [
+    TypeOrmModule.forFeature([Book]),
+    BorrowedBooksModule,
+  ],
+  controllers: [BookController],
+  providers: [
+    BookService,
+    {
+      provide: 'IBookRepository',
+      useClass: BookRepository,
+    },
+  ],
+  exports: [BookService, 'IBookRepository'],
 })
 export class BooksModule { }

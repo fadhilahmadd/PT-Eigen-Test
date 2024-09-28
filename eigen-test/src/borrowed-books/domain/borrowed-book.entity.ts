@@ -1,4 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Book } from '../../books/domain/book.entity';
+import { Member } from '../../members/domain/member.entity';
 
 @Entity('borrowed_books')
 export class BorrowedBook {
@@ -16,4 +18,12 @@ export class BorrowedBook {
 
     @Column({ nullable: true })
     returnDate: Date;
+
+    @ManyToOne(() => Book)
+    @JoinColumn({ name: 'bookId' })
+    book: Book;
+
+    @ManyToOne(() => Member)
+    @JoinColumn({ name: 'memberId' })
+    member: Member;
 }

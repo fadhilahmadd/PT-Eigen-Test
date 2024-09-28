@@ -55,18 +55,18 @@ export class BookService {
         }
     }
 
-    async checkBooks() {
+    async checkBooks(): Promise<{ id: string; title: string; totalQuantity: number; availableQuantity: number }[]> {
         const books = await this.bookRepository.findAll();
         const borrowedBooks = await this.borrowedBookRepository.findAll();
 
-        return books.map(book => {
+        return Promise.all(books.map(async (book) => {
             const borrowedCount = borrowedBooks.filter(bb => bb.bookId === book.id && !bb.returnDate).length;
             return {
                 id: book.id,
                 title: book.title,
                 totalQuantity: book.stock,
-                availableQuantity: book.stock - borrowedCount,
+                availableQuantity: book.stock - borrowedCount
             };
-        });
+        }));
     }
 }

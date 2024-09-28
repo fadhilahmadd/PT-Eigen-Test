@@ -9,7 +9,7 @@ export class BorrowedBookRepository implements IBorrowedBookRepository {
     constructor(
         @InjectRepository(BorrowedBook)
         private borrowedBookRepository: Repository<BorrowedBook>,
-    ) {}
+    ) { }
 
     async create(borrowedBook: BorrowedBook): Promise<BorrowedBook> {
         return this.borrowedBookRepository.save(borrowedBook);
@@ -25,8 +25,8 @@ export class BorrowedBookRepository implements IBorrowedBookRepository {
         });
     }
 
-    async findByMemberAndBookId(memberId: string, bookId: string): Promise<BorrowedBook> {
-        const result = await this.borrowedBookRepository.findOne({
+    async findByMemberAndBookId(memberId: string, bookId: string): Promise<BorrowedBook | null> {
+        return this.borrowedBookRepository.findOne({
             where: {
                 memberId: memberId,
                 bookId: bookId,
@@ -34,26 +34,25 @@ export class BorrowedBookRepository implements IBorrowedBookRepository {
             },
             relations: ['book'],
         });
-
-        if (!result) {
-            throw new Error('BorrowedBook not found');
-        }
-
-        return result;
     }
 
     async update(id: string, borrowedBook: Partial<BorrowedBook>): Promise<BorrowedBook> {
         await this.borrowedBookRepository.update(id, borrowedBook);
-        const updatedBorrowedBook = await this.borrowedBookRepository.findOne({ where: { id } });
-        
+        const updatedBorrowedBook = await this.borrowedBookRepository.findOne({
+            where: { id },
+            relations: ['book'],
+        });
+
         if (!updatedBorrowedBook) {
-            throw new Error('BorrowedBook not found after update');
+            throw new Error('Borrowed book not found after update');
         }
 
         return updatedBorrowedBook;
     }
 
     async findAll(): Promise<BorrowedBook[]> {
-        return this.borrowedBookRepository.find();
+        return this.borrowedBookRepository.find({
+            relations: ['book'],
+        });
     }
 }

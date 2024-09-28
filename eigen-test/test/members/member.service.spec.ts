@@ -57,7 +57,7 @@ describe('MemberService', () => {
       const mockMember = new Member();
       mockMember.id = '1';
       mockMember.code = 'M001';
-      mockMember.name = 'John Doe';
+      mockMember.name = 'Angga';
       mockMember.isPenalized = false;
       const result: Member[] = [mockMember];
       mockMemberRepository.findAll.mockResolvedValue(result);
@@ -70,7 +70,7 @@ describe('MemberService', () => {
       const mockMember = new Member();
       mockMember.id = '1';
       mockMember.code = 'M001';
-      mockMember.name = 'John Doe';
+      mockMember.name = 'Angga';
       mockMember.isPenalized = false;
       mockMemberRepository.findById.mockResolvedValue(mockMember);
       expect(await service.getMemberById('1')).toBe(mockMember);
@@ -90,6 +90,8 @@ describe('MemberService', () => {
 
         const mockBook = new Book();
         mockBook.id = '1';
+        mockBook.code = 'JK-45';
+        mockBook.title = 'Harry Potter';
         mockBook.stock = 1;
 
         mockMemberRepository.findById.mockResolvedValue(mockMember);
@@ -129,6 +131,8 @@ describe('MemberService', () => {
 
       const mockBook = new Book();
       mockBook.id = '1';
+      mockBook.code = 'JK-45';
+      mockBook.title = 'Harry Potter';
       mockBook.stock = 0;
 
       mockMemberRepository.findById.mockResolvedValue(mockMember);
@@ -149,6 +153,8 @@ describe('MemberService', () => {
 
         const mockBook = new Book();
         mockBook.id = '1';
+        mockBook.code = 'JK-45';
+        mockBook.title = 'Harry Potter';
         mockBook.stock = 0;
 
         mockBorrowedBookRepository.findByMemberAndBookId.mockResolvedValue(borrowedBook);
@@ -170,6 +176,8 @@ describe('MemberService', () => {
 
       const mockBook = new Book();
       mockBook.id = '1';
+      mockBook.code = 'JK-45';
+      mockBook.title = 'Harry Potter';
       mockBook.stock = 0;
 
       mockBorrowedBookRepository.findByMemberAndBookId.mockResolvedValue(borrowedBook);
@@ -193,8 +201,8 @@ describe('MemberService', () => {
   describe('checkMembers', () => {
     it('seharusnya mengembalikan daftar anggota dengan jumlah buku yang dipinjam', async () => {
       const mockMembers = [
-        { id: '1', name: 'John Doe' },
-        { id: '2', name: 'Jane Smith' },
+        { id: '1', name: 'Angga' },
+        { id: '2', name: 'Ferry' },
       ];
       const mockBorrowedBooks = [
         { memberId: '1', returnDate: null },
@@ -208,14 +216,14 @@ describe('MemberService', () => {
       const result = await service.checkMembers();
 
       expect(result).toEqual([
-        { id: '1', name: 'John Doe', borrowedBooks: 2 },
-        { id: '2', name: 'Jane Smith', borrowedBooks: 1 },
+        { id: '1', name: 'Angga', borrowedBooks: 2 },
+        { id: '2', name: 'Ferry', borrowedBooks: 1 },
       ]);
     });
 
     it('seharusnya mengembalikan 0 buku dipinjam jika anggota tidak meminjam buku', async () => {
       const mockMembers = [
-        { id: '1', name: 'John Doe' },
+        { id: '1', name: 'Angga' },
       ];
       const mockBorrowedBooks: BorrowedBook[] = [];
 
@@ -225,17 +233,17 @@ describe('MemberService', () => {
       const result = await service.checkMembers();
 
       expect(result).toEqual([
-        { id: '1', name: 'John Doe', borrowedBooks: 0 },
+        { id: '1', name: 'Angga', borrowedBooks: 0 },
       ]);
     });
 
     it('seharusnya tidak menghitung buku yang sudah dikembalikan', async () => {
       const mockMembers = [
-        { id: '1', name: 'John Doe' },
+        { id: '1', name: 'Angga' },
       ];
       const mockBorrowedBooks = [
         { memberId: '1', returnDate: null },
-        { memberId: '1', returnDate: new Date() }, // This book has been returned
+        { memberId: '1', returnDate: new Date() }, // Buku ini telah dikembalikan
       ];
 
       mockMemberRepository.findAll.mockResolvedValue(mockMembers as Member[]);
@@ -244,9 +252,9 @@ describe('MemberService', () => {
       const result = await service.checkMembers();
 
       expect(result).toEqual([
-        { id: '1', name: 'John Doe', borrowedBooks: 1 },
+        { id: '1', name: 'Angga', borrowedBooks: 1 },
       ]);
     });
   });
-  // Uji yang ada untuk createMember, updateMember, dan deleteMember tetap sama
+  
 });
